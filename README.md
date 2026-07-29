@@ -1,7 +1,7 @@
 # 招聘评估工作流
 
-> 自包含的简历评估工作流：飞书多维表管职位 + Moka 抓简历库（带面试标签）+ 8 维框架评估 + 评估结果回写飞书。
-> 整包可拷到任何地方复用（换环境只改 `config.json`）。
+> 简历评估工作流：飞书多维表管职位 + Moka 抓简历库（带面试标签）+ 8 维框架评估 + 评估结果回写飞书。
+> 代码与数据分离：代码在本目录（`D:\projects\hajifeng-scvsystem`，GitHub `hajifeng2/hajifeng-scvsystem`），数据（简历/评估产出）在 OneDrive，`config.json` 的 paths 用绝对路径连接。换机器只改 `config.json`。
 
 ## 这是什么
 
@@ -75,6 +75,7 @@ lark-cli auth login
 # 3. 复制配置并按实际填
 cp config.example.json config.json
 #   编辑 config.json：feishu token/table_id、moka_job_map（飞书职位名->Moka目录名）
+#   paths.workspace_root / moka_resumes_root 填数据目录绝对路径（本机指 OneDrive:\简历管理系统Onedrive\工作区 和 \resumes）
 
 # 4. 一次性建两张评估表（评估结果表 + moka简历库表），把返回的两个 table_id 回写 config.json
 cd scripts
@@ -123,7 +124,7 @@ scripts/                   # 机械活脚本（评估打分由 Agent 在对话�
 │   ├── step4_extract_pdf.py
 │   ├── step5_write_eval_result.py
 │   └── lib/               # config / lark_base / moka_label / pdf_extract
-└── 工作区/                 # 实际评估工作区（按职位分，脚本生成）
+└── 工作区/                 # 实际评估工作区（按职位分；本机在 OneDrive，不在代码目录）
 ```
 
 ## 红线

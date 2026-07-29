@@ -1,11 +1,17 @@
 # 招聘评估工作流 - AI 工作规范
 
 > 接手 AI 必读本文件 + [docs/工作流总览.md](docs/工作流总览.md) + [scripts/README.md](scripts/README.md)。
-> 本文件夹自包含，可拷走复用。换环境只改 `config.json`。
+> 代码与数据分离：代码在本目录（`D:\projects\hajifeng-scvsystem`），数据在 OneDrive，`config.json` 的 paths 用绝对路径连接。换机器只改 `config.json`。
 
 ## 项目定位
 
 把飞书多维表（职位 + 评估结果）、Moka 简历库（带面试标签）、8 维评估框架串成一个端到端招聘评估工作流。
+
+## 环境架构（代码与数据分离）
+
+- **代码主环境**：本目录 `D:\projects\hajifeng-scvsystem`（`.git` + GitHub `hajifeng2/hajifeng-scvsystem`）。代码改动 + git 操作都在这。
+- **数据**：OneDrive `简历管理系统Onedrive\` 的 `工作区/`、`moka_output/`、`resumes/`，多设备同步；`config.json` 的 paths 用绝对路径指向它（`lib/config.py:resolve()` 支持绝对路径，无需改脚本）。
+- ⚠️ **OneDrive 旧目录是备份，别在里面跑 git**（`.git` 被 OneDrive 同步有损坏风险）。`moka/*.js`、`_gen_labels.py` 用相对 `moka_output` 路径，D 盘找不到，需抓 Moka 时单独处理。
 
 ## 脚本 vs Agent 分工（核心）
 
@@ -54,8 +60,8 @@
 
 `config.json`（从 `config.example.json` 复制）：
 - `feishu.app_token` / `职位表_table_id` / `评估结果表_table_id`（建表后回写）/ `identity`
-- `paths.moka_resumes_root`：Moka 的 resumes 根目录
-- `paths.workspace_root`：评估工作区根（相对路径相对于本文件夹根）
+- `paths.moka_resumes_root`：Moka 的 resumes 根目录（本机填 OneDrive 绝对路径）
+- `paths.workspace_root`：评估工作区根（本机填 OneDrive 绝对路径；`lib/config.py` 的 `resolve()` 支持相对/绝对）
 - `moka_job_map`：飞书职位名 -> Moka 目录名（Step3 定位 Moka 简历用）
 
 ## 不在本文件夹内的事
