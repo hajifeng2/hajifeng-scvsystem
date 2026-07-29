@@ -1,0 +1,4 @@
+# 招聘评估工作流 Python 依赖
+# 安装方式: pip install -r requirements.txt
+
+pymupdf>=1.28.0

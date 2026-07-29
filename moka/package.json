@@ -1,0 +1,9 @@
+{
+  "name": "moka-fetch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Moka 简历批量抓取（Edge CDP，连本机已登录的 Edge，不下载浏览器）",
+  "dependencies": {
+    "playwright-core": "^1.40.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "feishu": {
+    "app_token": "YOUR_APP_TOKEN_HERE",
+    "职位表_table_id": "<table_id>",
+    "评估结果表_table_id": "",
+    "moka简历库表_table_id": "",
+    "identity": "user"
+  },
+  "paths": {
+    "moka_resumes_root": "moka_output",
+    "workspace_root": "工作区"
+  },
+  "moka_job_map": {
+    "客户端实习生（U3D）": "客户端开发（U3D）"
+  }
+}
