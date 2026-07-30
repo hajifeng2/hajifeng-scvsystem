@@ -11,7 +11,7 @@
 
 - **代码主环境**：本目录 `D:\projects\hajifeng-scvsystem`（`.git` + GitHub `hajifeng2/hajifeng-scvsystem`）。代码改动 + git 操作都在这。
 - **数据**：OneDrive `简历管理系统Onedrive\` 的 `工作区/`、`moka_output/`、`resumes/`，多设备同步；`config.json` 的 paths 用绝对路径指向它（`lib/config.py:resolve()` 支持绝对路径，无需改脚本）。
-- ⚠️ **OneDrive 旧目录是备份，别在里面跑 git**（`.git` 被 OneDrive 同步有损坏风险）。`moka/*.js`、`_gen_labels.py` 用相对 `moka_output` 路径，D 盘找不到，需抓 Moka 时单独处理。
+- ⚠️ **OneDrive 是纯数据目录**（只含 `工作区/`、`moka_output/`、`resumes/`，无代码无 `.git`）；代码/git 操作只在 D 盘。`moka/*.js`、`_gen_labels.py` 用相对 `moka_output` 路径，D 盘找不到，需抓 Moka 时单独处理。
 
 ## 脚本 vs Agent 分工（核心）
 
