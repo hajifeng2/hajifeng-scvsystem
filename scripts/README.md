@@ -11,6 +11,7 @@
    - `feishu.app_token` / `职位表_table_id`
    - `paths.moka_resumes_root`（Moka 的 resumes 根目录）
    - `moka_job_map`（飞书职位名 -> Moka 目录名）
+   - `ocr.tesseract_exe` / `ocr.tessdata_dir`（Tesseract OCR 路径，换机器只改这；仅 `ocr_pdf.py` 用，不用 OCR 可不填）
 4. 跑一次 `python setup_eval_table.py` 建两张评估表（评估结果表 + moka简历库表），把返回的两个 table_id 回写 config.json
 
 ## 每个职位跑一次的流程

@@ -9,13 +9,13 @@
   - tesseract（OCR 引擎）+ chi_sim 中文语言包
 
 环境前提（一次性）:
-  - winget install UB-Mannheim.TesseractOCR  -> 装到 C:\\Program Files\\Tesseract-OCR\\
+  - winget install UB-Mannheim.TesseractOCR  ->  装到 C:\\Program Files\\Tesseract-OCR\\
   - Program Files 写不进去时，把 tessdata 建到用户目录并下载 chi_sim：
       mkdir C:\\Users\\<user>\\.tessdata
       copy "C:\\Program Files\\Tesseract-OCR\\tessdata\\eng.traineddata" C:\\Users\\<user>\\.tessdata\\
       curl -L -o C:\\Users\\<user>\\.tessdata\\chi_sim.traineddata ^
         https://github.com/tesseract-ocr/tessdata_fast/raw/main/chi_sim.traineddata
-  - 换机器改下方 TESS / TESSDATA 路径。
+  - 换机器改 config.json 的 ocr 段（tesseract_exe / tessdata_dir），代码不动。
 
 产物: 写到 <PDF所在目录>/txt2/<同名>.txt（覆盖），与 step4 产物位置一致，Agent 可直接读。
 """
@@ -26,11 +26,38 @@ from pathlib import Path
 
 import fitz
 
-TESS = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-TESSDATA = r"C:\Users\hejch\.tessdata"
+sys.path.insert(0, str(Path(__file__).parent))
+from lib.config import load_config, resolve                              # noqa: E402
+
 DPI = 300  # 渲染分辨率，越高越准但越慢
 LANG = "chi_sim+eng"
 PSM = "6"  # 页面分割模式：6=统一文本块（简历常用）
+
+
+def _load_ocr_paths():
+    """从 config.json 读 tesseract 路径。换机器只改 config.json 的 ocr 段，代码不动。"""
+    cfg = load_config()
+    ocr = cfg.get("ocr", {})
+    tess_raw = ocr.get("tesseract_exe", "").strip()
+    tessdata_raw = ocr.get("tessdata_dir", "").strip()
+    if not tess_raw or not tessdata_raw:
+        raise SystemExit(
+            "❌ config.json 缺 ocr.tesseract_exe / ocr.tessdata_dir。\n"
+            "   换机器时在 config.json 的 ocr 段填本机路径，参考 config.example.json。"
+        )
+    tess = resolve(tess_raw)
+    tessdata = resolve(tessdata_raw)
+    if not tess.exists():
+        raise SystemExit(
+            f"❌ tesseract.exe 不存在：{tess}\n"
+            f"   检查 config.json 的 ocr.tesseract_exe，或先装 Tesseract（见本文件顶部说明）。"
+        )
+    if not tessdata.exists():
+        raise SystemExit(
+            f"❌ tessdata 目录不存在：{tessdata}\n"
+            f"   检查 config.json 的 ocr.tessdata_dir，或先下载 chi_sim 语言包（见本文件顶部说明）。"
+        )
+    return str(tess), str(tessdata)
 
 
 def ocr_pdf(pdf_path: str) -> str:
@@ -38,6 +65,8 @@ def ocr_pdf(pdf_path: str) -> str:
     if not pdf.exists():
         print(f"❌ PDF 不存在：{pdf}")
         sys.exit(1)
+
+    TESS, TESSDATA = _load_ocr_paths()  # 本机路径从 config 读，换机器只改 config
 
     out_dir = pdf.parent / "txt2"
     out_dir.mkdir(exist_ok=True)

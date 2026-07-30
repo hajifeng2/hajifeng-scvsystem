@@ -12,5 +12,9 @@
   },
   "moka_job_map": {
     "客户端实习生（U3D）": "客户端开发（U3D）"
+  },
+  "ocr": {
+    "tesseract_exe": "C:/Program Files/Tesseract-OCR/tesseract.exe",
+    "tessdata_dir": "C:/Users/<user>/.tessdata"
   }
 }
