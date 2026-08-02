@@ -23,7 +23,7 @@ description: >
 5 步（详见文件夹文档）：
 1. **职位入表**：Agent 把职位描述映射到飞书职位表字段 -> `step1_write_job.py` 写飞书
 2. **读表建区**：`step2_setup_workspace.py "职位名"` 读职位 + 建三区 -> Agent 派生 `岗位画像_<职位>.md`
-3. **三区就位**：简历库源填好（三选一：`moka/` 子流程抓 / config 指向已有数据 / 手工放）-> `step3_copy_moka_library.py` 复制进简历库；待评估手动放 PDF
+3. **三区就位**：简历库源填好（三选一：`/moka-fetch` skill 抓 / config 指向已有数据 / 手工放）-> `step3_copy_moka_library.py` 复制进简历库；待评估手动放 PDF
 4. **简历库 -> 评估参考**：`step4_extract_pdf.py` 提 txt -> Agent 按 `docs/评估框架` 8 维评估 + 用 Moka 标签做群体分析 -> `评估参考_<职位>_<日期>.md` -> `step5_write_eval_result.py`（来源=简历库）写飞书
 5. **待评估 -> 评估完成**：提 txt -> Agent 8 维 + 评估参考校准 -> 单人评估卡（备注）-> 搬进 `评估完成/<verdict>/` -> `step5`（来源=待评估）写飞书
 
@@ -48,5 +48,6 @@ description: >
 
 ## 5. 配套 skill
 
+- Moka 简历抓取：`/moka-fetch`（第 3 步"三区就位"填简历库的方式①，可选）
 - 飞书读写：`/feishu`（lark-cli 操作多维表/记录）
 - 需求/方案拷问：`/grill-me`

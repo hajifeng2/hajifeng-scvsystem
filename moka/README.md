@@ -32,12 +32,16 @@ node moka-retry-failed.js "初筛"
 
 # 给已有 PDF 补面试 JSON（PDF 在但 JSON 缺/旧）
 node moka-backfill-json.js "游戏测试实习生" "系统策划实习生"   # 默认面试阶段
+
+# 扫各职位各阶段当前 open 人数（不下载 PDF，看 Moka 线上状态）
+node moka-job-status.js
 ```
 
 ## 产出
 
 ```
 moka_output/<职位>/<阶段>/<序号>_<姓名>.pdf + <序号>_<姓名>.json + download-record.json
+moka_output/_status/<时间戳>_job-status.json   # job-status 脚本，职位×阶段人数矩阵
 ```
 
 - 序号 = search-candidate 返回位置（稳定索引 `i+1`），不用「目录文件数+1」（失败/重跑会错位）
@@ -62,10 +66,11 @@ moka_output/<职位>/<阶段>/<序号>_<姓名>.pdf + <序号>_<姓名>.json + d
 
 ## 已知限制
 
-- **非面试阶段的详情页 URL 是推测的**（面试用 `/interviews` 路径已验证；其它阶段用 `/application/{id}` 通用路径）。若非面试阶段下载失败，可能需调 `moka-fetch.js` 里的 `detailUrl`。
-- 下载按钮约 5-10% 概率「no download」，用 `moka-retry-failed.js` 补跑。
-- `personalUrl`/`previewUrl`（OSS 直链）带签名会过期，别缓存复用；下载走 UI 点按钮最稳。
-- 网络代理偶发 `ERR_PROXY_CONNECTION_FAILED`，等恢复重跑。
+- **PDF 下载走 `previewUrl` OSS 签名直链**（`search-candidate` 返回的候选人对象带此字段），用 `page.evaluate(fetch)` 走 Edge 网络拉取后转 base64 写文件。Edge 150 后 UI 点击下载按钮全阶段失效，故不点按钮、不导航详情页。
+- `previewUrl` 带签名**几小时过期**，不缓存、不写进 `download-record.json`；`moka-retry-failed.js` 补跑时会重新调 `search-candidate` 拿新链接。
+- 走 `page.evaluate` 用 Edge 网络，避开 Node 直连 OSS 时的 `ERR_PROXY_CONNECTION_FAILED`。
+- 若某候选人对象无 `previewUrl` 字段，脚本会打印该对象 keys 便于排查（字段名可能随 Moka 改版变化）。
+- 网络代理偶发 `ERR_PROXY_CONNECTION_FAILED`（Node 侧），等恢复重跑；走 Edge 网络的 previewUrl 下载不受影响。
 
 ## 与工作流的衔接
 
