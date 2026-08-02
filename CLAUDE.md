@@ -35,6 +35,7 @@
 
 - **PDF 提取只用 pymupdf**（step4 / docs/PDF文本提取方法.md），Agent 读 txt2/ 不读 PDF
 - **Moka 标签时效**：`conclusions[].result`（通过/待定/淘汰）只在面试结论提交后有意义；面试没面完别评估
+- **`moka_job_map` 是线上职位的带时间戳快照（不自动同步）**：内容从 Moka 线上更新而来（飞书职位名↔Moka 目录名映射），日常可以 map 为准；但 map 带 `moka_job_map_updated_at`（上次从线上刷新时间），与线上当前状态可能有差距（线上增/改/删职位，map 不自动更新）。**不每次运行都自动去线上刷新**--由 Agent 提醒用户「map 可能过期」，**用户决定**是否从线上重新拉取并更新 map（刷新时同步更新 `moka_job_map_updated_at`）；map 用于 Step3 定位本地已抓目录
 - **不删/改名 PDF 原件**；简历库是**复制**不是移动
 - **画像不进多维表**：岗位画像在本地从职位表行派生（JD + 关注点 + 排除项 + 毕业时间 + 时长要求），职位表 schema 不动
 - **隐私脱敏**：电话/邮箱存档案时脱敏（`138****1234`），不外发
@@ -63,7 +64,7 @@
 - `feishu.app_token` / `职位表_table_id` / `评估结果表_table_id`（建表后回写）/ `identity`
 - `paths.moka_resumes_root`：Moka 的 resumes 根目录（本机填 OneDrive 绝对路径）
 - `paths.workspace_root`：评估工作区根（本机填 OneDrive 绝对路径；`lib/config.py` 的 `resolve()` 支持相对/绝对）
-- `moka_job_map`：飞书职位名 -> Moka 目录名（Step3 定位 Moka 简历用）
+- `moka_job_map`：飞书职位名 -> Moka 目录名（Step3 定位 Moka 简历用）。内容从 Moka 线上更新而来，配 `moka_job_map_updated_at` 记录上次刷新时间；日常可以 map 为准，但与线上可能有差距，刷新由用户决定（见上方红线）
 
 ## 不在本文件夹内的事
 

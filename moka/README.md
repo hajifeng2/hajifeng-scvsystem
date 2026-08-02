@@ -78,3 +78,4 @@ moka_output/<职位>/<阶段>/<序号>_<姓名>.pdf + <序号>_<姓名>.json + d
 - `connectOverCDP` 连常驻 Edge，**不要用 `launchPersistentContext`**（会和 CDP 抢 profile 锁）
 - search-candidate 必须 `limit:200`（默认 30 只拿第一页，会漏人）
 - 候选人隐私（电话/邮箱）不外发
+- **职位名以 Moka 线上为准（map 是带时间戳快照，不自动同步）**：`moka-fetch.js` 按 `c.jobTitle === JOB` 精确过滤，传入的职位名必须与 Moka 线上 `jobTitle` 完全一致（含全角括号），否则 0 匹配。`config.moka_job_map` 是从线上更新而来的快照（带 `moka_job_map_updated_at`），日常可以 map 为准，但可能与线上有差距；不自动刷新，由 Agent 提醒、用户决定何时从线上重新拉取更新
