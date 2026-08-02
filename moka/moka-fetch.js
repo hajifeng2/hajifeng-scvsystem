@@ -102,32 +102,37 @@ const existPdf = new Set(fs.readdirSync(outDir).filter(f => f.endsWith('.pdf')))
       info.fetchError = e.message;
     }
 
-    // 2. 下载 PDF
+    // 2. 下载 PDF（previewUrl OSS 签名直链，走 page.evaluate 用 Edge 网络；UI 点击下载在 Edge 150 后全阶段失效）
     const pdfName = `${seq}_${name}.pdf`;
     const pdfPath = path.join(outDir, pdfName);
     let dlStatus;
     if (existPdf.has(pdfName)) {
       dlStatus = { file: pdfName, skipped: true };
       console.log(`  PDF: 已存在，跳过`);
+    } else if (!c.previewUrl) {
+      dlStatus = { file: null, error: 'no previewUrl', keys: Object.keys(c) };
+      console.log(`  PDF: ❌ 候选人对象无 previewUrl，keys=${Object.keys(c).join(',')}（可跑 moka-retry-failed.js 补）`);
     } else {
-      // 详情页：面试用 /interviews（已验证）；其它阶段用通用路径（推测，失败需调）
-      const detailUrl = IS_INTERVIEW
-        ? `https://app.mokahr.com/candidates/application/${appId}/interviews?pipelineId=${PIPELINE_ID}&stageId=${STAGE_ID}&jobPreference=assist&jobStatus%5B0%5D=open`
-        : `https://app.mokahr.com/candidates/application/${appId}?pipelineId=${PIPELINE_ID}&stageId=${STAGE_ID}&jobPreference=assist&jobStatus%5B0%5D=open`;
       try {
-        await p.goto(detailUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-        await sleep(4000);
-        const tab = await p.$('text="基本信息"');
-        if (tab) await tab.click();
-        await sleep(3500);
-        const dl = await new Promise((resolve) => {
-          const h = (d) => resolve(d);
-          p.on('download', h);
-          p.evaluate(() => { const ic = document.querySelector('[class*=icondownload]'); if (ic) { const b = ic.closest('button'); if (b) b.click(); } }).catch(() => {});
-          setTimeout(() => { p.removeListener('download', h); resolve(null); }, 12000);
-        });
-        if (dl) { await dl.saveAs(pdfPath); const st = fs.statSync(pdfPath); dlStatus = { file: pdfName, size: st.size }; console.log(`  PDF: ✅ ${st.size}B`); }
-        else { dlStatus = { file: null, error: 'no download' }; console.log(`  PDF: ❌ 未捕获（可跑 moka-retry-failed.js 补）`); }
+        const r = await p.evaluate(async (url) => {
+          const resp = await fetch(url);
+          if (!resp.ok) return { error: 'http ' + resp.status };
+          const buf = await resp.arrayBuffer();
+          const bytes = new Uint8Array(buf);
+          let bin = '';
+          for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+          return { b64: btoa(bin), size: bytes.length };
+        }, c.previewUrl);
+        if (r?.b64) {
+          fs.writeFileSync(pdfPath, Buffer.from(r.b64, 'base64'));
+          const st = fs.statSync(pdfPath);
+          const sizeNote = c.resumeSize && st.size !== c.resumeSize ? ` (resumeSize=${c.resumeSize} 不符)` : '';
+          dlStatus = { file: pdfName, size: st.size, via: 'previewUrl' };
+          console.log(`  PDF: ✅ ${st.size}B${sizeNote}`);
+        } else {
+          dlStatus = { file: null, error: r?.error || 'empty' };
+          console.log(`  PDF: ❌ ${r?.error || '空响应'}（可跑 moka-retry-failed.js 补）`);
+        }
       } catch (e) { dlStatus = { file: null, error: e.message }; console.log(`  PDF: ❌ ${e.message}`); }
     }
 
