@@ -15,9 +15,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 from lib.config import load_config                     # noqa: E402
 from lib.lark_base import create_table                 # noqa: E402
 
-# 评级 / 评估结论 选项（两表共用）
+# 评级 / Moka面试结论 选项
 TIER_OPTS = [{"name": "A"}, {"name": "B"}, {"name": "C+"}, {"name": "C"}]
-VERDICT_OPTS = [{"name": "被接收"}, {"name": "未通过"}, {"name": "待定"}]
 MOKA_OPTS = [{"name": "通过"}, {"name": "待定"}, {"name": "淘汰"}, {"name": "未面"}]
 
 
@@ -27,7 +26,8 @@ def fields_for_eval_table(job_table_id):
         {"name": "姓名", "type": "text"},                       # 主属性列
         {"name": "所属职位", "type": "link", "link_table": job_table_id},
         {"name": "评级", "type": "select", "multiple": False, "options": TIER_OPTS},
-        {"name": "评估结论", "type": "select", "multiple": False, "options": VERDICT_OPTS},
+        {"name": "评估详情", "type": "text"},
+        {"name": "核心原因总结", "type": "text"},
         {"name": "评估日期", "type": "text"},
         {"name": "评估卡路径", "type": "text"},
     ]
@@ -39,8 +39,10 @@ def fields_for_library_table(job_table_id):
         {"name": "姓名", "type": "text"},
         {"name": "所属职位", "type": "link", "link_table": job_table_id},
         {"name": "评级", "type": "select", "multiple": False, "options": TIER_OPTS},
-        {"name": "评估结论", "type": "select", "multiple": False, "options": VERDICT_OPTS},
         {"name": "Moka面试结论", "type": "select", "multiple": False, "options": MOKA_OPTS},
+        {"name": "评估详情", "type": "text"},
+        {"name": "核心原因总结", "type": "text"},
+        {"name": "评估卡内容", "type": "text"},
         {"name": "评估日期", "type": "text"},
         {"name": "评估卡路径", "type": "text"},
     ]

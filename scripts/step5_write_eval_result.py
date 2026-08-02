@@ -9,7 +9,8 @@
   所属职位        飞书职位名（脚本解析为 record_id 写入 link 列）
   来源           简历库 / 待评估  -- 决定写哪张表
   评级           A / B / C+ / C
-  评估结论        被接收 / 未通过 / 待定
+  评估详情        优势+风险+建议（多行文本）
+  核心原因总结    一句话合适/不合适原因
   Moka面试结论    通过 / 待定 / 淘汰 / 未面  -- 仅来源=简历库时填
   评估日期        如 2026-07-12
   评估卡路径      本地 md 路径
@@ -50,13 +51,13 @@ def main():
         if not table_id:
             print("❌ config 里 feishu.moka简历库表_table_id 为空。先跑 setup_eval_table.py 建表并回写。")
             return
-        field_names = ["姓名", "所属职位", "评级", "评估结论", "Moka面试结论", "评估日期", "评估卡路径"]
+        field_names = ["姓名", "所属职位", "评级", "评估详情", "核心原因总结", "Moka面试结论", "评估日期", "评估卡路径"]
     else:  # 待评估
         table_id = feishu.get("评估结果表_table_id")
         if not table_id:
             print("❌ config 里 feishu.评估结果表_table_id 为空。先跑 setup_eval_table.py 建表并回写。")
             return
-        field_names = ["姓名", "所属职位", "评级", "评估结论", "评估日期", "评估卡路径"]
+        field_names = ["姓名", "所属职位", "评级", "评估详情", "核心原因总结", "评估日期", "评估卡路径"]
 
     # 所属职位：职位名 -> record_id（link 列 CellValue = [{"id":"rec_xxx"}]）
     job_name = obj.get("所属职位", "")
@@ -75,7 +76,8 @@ def main():
             obj.get("姓名", ""),
             job_link,
             obj.get("评级", ""),
-            obj.get("评估结论", ""),
+            obj.get("评估详情", ""),
+            obj.get("核心原因总结", ""),
             obj.get("Moka面试结论", ""),
             obj.get("评估日期", ""),
             obj.get("评估卡路径", ""),
@@ -85,7 +87,8 @@ def main():
             obj.get("姓名", ""),
             job_link,
             obj.get("评级", ""),
-            obj.get("评估结论", ""),
+            obj.get("评估详情", ""),
+            obj.get("核心原因总结", ""),
             obj.get("评估日期", ""),
             obj.get("评估卡路径", ""),
         ]
@@ -98,7 +101,7 @@ def main():
     rid = records[0].get("record_id") if records else None
     target = "moka简历库表" if source == "简历库" else "评估结果表"
     print(f"\n✅ 已写入飞书【{target}】（来源={source}）。")
-    print(f"   姓名={obj.get('姓名')} 评级={obj.get('评级')} 结论={obj.get('评估结论')}")
+    print(f"   姓名={obj.get('姓名')} 评级={obj.get('评级')}")
     if source == "简历库":
         print(f"   Moka面试结论={obj.get('Moka面试结论')}（校准对比）")
     print(f"   record_id={rid}")
